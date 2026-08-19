@@ -122,7 +122,7 @@ with st.sidebar:
     st.markdown(f"MAE — ${metrics['mae']:,.0f}")
     st.markdown(f"RMSE — ${metrics['rmse']:,.0f}")
     st.markdown("---")
-    st.html("<span style='font-size:0.78rem; opacity:0.8;'>Dataset: California Housing Prices (public, GitHub-hosted mirror of the same data distributed on Kaggle).</span>")
+    st.html("<span style='font-size:0.78rem; opacity:0.8;'>Dataset: California Housing Prices — the same dataset distributed on Kaggle by Cam Nugent, sourced from the 1990 California census.</span>")
 
 st.html("<div class='eyebrow'>TASK 03 — MACHINE LEARNING</div>")
 st.html("<div class='masthead'>The Appraisal Office<br><em>an estimate, drafted from the numbers</em></div>")
