@@ -7,15 +7,16 @@ import numpy as np
 
 def html_md(raw: str):
     """
-    Render an HTML string safely with st.markdown.
-    Streamlit's markdown parser treats lines indented 4+ spaces as a
-    fenced code block, which turns multi-line HTML (built from indented
-    f-strings/templates) into visible literal text instead of rendering
-    it. Dedenting + stripping leading whitespace on every line avoids
-    that entirely, regardless of how the calling code was indented.
+    Render an HTML string safely, bypassing st.markdown entirely.
+    st.markdown(..., unsafe_allow_html=True) still runs its markdown
+    parser first -- stray characters like the '*' in CSS attribute
+    selectors (e.g. [class*="css"]) get misread as markdown emphasis
+    and can corrupt/leak raw HTML or CSS as visible text. st.html()
+    renders the string as literal HTML with no markdown parsing at
+    all, so this can't happen regardless of indentation or content.
     """
     lines = [line.strip() for line in textwrap.dedent(raw).split("\n")]
-    st.markdown("\n".join(lines), unsafe_allow_html=True)
+    st.html("\n".join(lines))
 
 
 st.set_page_config(page_title="The Appraisal Office — Housing Price Estimator", page_icon="⌂", layout="wide", initial_sidebar_state="expanded")
@@ -108,8 +109,8 @@ section[data-testid="stSidebar"] * { color: var(--paper) !important; }
 """)
 
 with st.sidebar:
-    st.markdown("<div class='eyebrow' style='color:#D89A6A;'>ARCH TECHNOLOGIES</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-family:Spectral,serif; font-size:1.35rem; font-weight:700; margin-bottom:1rem;'>ML Internship<br>Month 2 · Task 3</div>", unsafe_allow_html=True)
+    st.html("<div class='eyebrow' style='color:#D89A6A;'>ARCH TECHNOLOGIES</div>")
+    st.html("<div style='font-family:Spectral,serif; font-size:1.35rem; font-weight:700; margin-bottom:1rem;'>ML Internship<br>Month 2 · Task 3</div>")
     st.markdown("---")
     st.markdown("**Model**")
     st.markdown("Random Forest Regressor (200 trees)")
@@ -121,17 +122,17 @@ with st.sidebar:
     st.markdown(f"MAE — ${metrics['mae']:,.0f}")
     st.markdown(f"RMSE — ${metrics['rmse']:,.0f}")
     st.markdown("---")
-    st.markdown("<span style='font-size:0.78rem; opacity:0.8;'>Dataset: California Housing Prices (public, GitHub-hosted mirror of the same data distributed on Kaggle).</span>", unsafe_allow_html=True)
+    st.html("<span style='font-size:0.78rem; opacity:0.8;'>Dataset: California Housing Prices (public, GitHub-hosted mirror of the same data distributed on Kaggle).</span>")
 
-st.markdown("<div class='eyebrow'>TASK 03 — MACHINE LEARNING</div>", unsafe_allow_html=True)
-st.markdown("<div class='masthead'>The Appraisal Office<br><em>an estimate, drafted from the numbers</em></div>", unsafe_allow_html=True)
-st.markdown("<div class='subhead'>Enter a property's statistics below. The office reads them against thousands of prior California sales and drafts an estimated market value, sealed with a confidence range.</div>", unsafe_allow_html=True)
-st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+st.html("<div class='eyebrow'>TASK 03 — MACHINE LEARNING</div>")
+st.html("<div class='masthead'>The Appraisal Office<br><em>an estimate, drafted from the numbers</em></div>")
+st.html("<div class='subhead'>Enter a property's statistics below. The office reads them against thousands of prior California sales and drafts an estimated market value, sealed with a confidence range.</div>")
+st.html("<hr class='divider'>")
 
 col_form, col_result = st.columns([1.35, 1], gap="large")
 
 with col_form:
-    st.markdown("<span class='panel-label'>\u25a2 Location</span>", unsafe_allow_html=True)
+    st.html("<span class='panel-label'>\u25a2 Location</span>")
     lc1, lc2, lc3 = st.columns(3)
     with lc1:
         longitude = st.number_input("Longitude", value=-119.5, min_value=-125.0, max_value=-113.0, step=0.1, format="%.2f")
@@ -140,7 +141,7 @@ with col_form:
     with lc3:
         ocean_proximity = st.selectbox("Ocean proximity", OCEAN_OPTIONS, index=0)
 
-    st.markdown("<span class='panel-label' style='margin-top:1rem;'>\u25a2 Structure</span>", unsafe_allow_html=True)
+    st.html("<span class='panel-label' style='margin-top:1rem;'>\u25a2 Structure</span>")
     sc1, sc2, sc3 = st.columns(3)
     with sc1:
         housing_median_age = st.number_input("Median age (yrs)", value=28, min_value=1, max_value=52, step=1)
@@ -149,7 +150,7 @@ with col_form:
     with sc3:
         total_bedrooms = st.number_input("Total bedrooms (block)", value=540, min_value=1, max_value=7000, step=10)
 
-    st.markdown("<span class='panel-label' style='margin-top:1rem;'>\u25a2 Community</span>", unsafe_allow_html=True)
+    st.html("<span class='panel-label' style='margin-top:1rem;'>\u25a2 Community</span>")
     cc1, cc2, cc3 = st.columns(3)
     with cc1:
         population = st.number_input("Population (block)", value=1425, min_value=1, max_value=36000, step=50)
@@ -161,7 +162,7 @@ with col_form:
     appraise = st.button("Appraise Property", use_container_width=True)
 
 with col_result:
-    st.markdown("<span class='panel-label'>\u25c8 Appraisal</span>", unsafe_allow_html=True)
+    st.html("<span class='panel-label'>\u25c8 Appraisal</span>")
     if appraise:
         row = {c: 0 for c in feature_cols}
         row["longitude"] = longitude
@@ -192,11 +193,11 @@ with col_result:
             </div>
         </div>
         """)
-        st.markdown(f"<div style='text-align:center; font-family:Space Mono, monospace; font-size:0.78rem; color:var(--blue-soft);'>likely between ${low:,.0f} and ${high:,.0f}</div>", unsafe_allow_html=True)
+        st.html(f"<div style='text-align:center; font-family:Space Mono, monospace; font-size:0.78rem; color:var(--blue-soft);'>likely between ${low:,.0f} and ${high:,.0f}</div>")
 
-        st.markdown("<div style='margin-top:1.3rem;'>", unsafe_allow_html=True)
+        st.html("<div style='margin-top:1.3rem;'>")
         st.map(pd.DataFrame({"lat": [latitude], "lon": [longitude]}), zoom=5, size=200)
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.html("</div>")
     else:
         html_md("""
         <div style='background:rgba(255,255,255,0.6); border:1.5px dashed var(--line); border-radius:6px;
@@ -205,19 +206,19 @@ with col_result:
         </div>
         """)
 
-st.markdown("<hr class='divider'>", unsafe_allow_html=True)
-st.markdown("<div class='eyebrow'>MODEL PERFORMANCE</div>", unsafe_allow_html=True)
-st.markdown("<div style='font-family:Spectral,serif; font-size:1.5rem; font-weight:700; margin-bottom:1rem; color:var(--blue);'>Evaluated on a held-out test set</div>", unsafe_allow_html=True)
+st.html("<hr class='divider'>")
+st.html("<div class='eyebrow'>MODEL PERFORMANCE</div>")
+st.html("<div style='font-family:Spectral,serif; font-size:1.5rem; font-weight:700; margin-bottom:1rem; color:var(--blue);'>Evaluated on a held-out test set</div>")
 
 m1, m2, m3 = st.columns(3)
 for col, label, value in [(m1, "R\u00b2 Score", f"{metrics['r2']:.3f}"), (m2, "MAE", f"${metrics['mae']:,.0f}"), (m3, "RMSE", f"${metrics['rmse']:,.0f}")]:
     with col:
-        st.markdown(f"<div class='metric-card'><div class='metric-label'>{label}</div><div class='metric-value'>{value}</div></div>", unsafe_allow_html=True)
+        st.html(f"<div class='metric-card'><div class='metric-label'>{label}</div><div class='metric-value'>{value}</div></div>")
 
-st.markdown("<div style='height:1.4rem;'></div>", unsafe_allow_html=True)
+st.html("<div style='height:1.4rem;'></div>")
 col_imp, col_notes = st.columns([1.1, 1], gap="large")
 with col_imp:
-    st.markdown("<div class='panel-label'>FEATURE IMPORTANCE</div>", unsafe_allow_html=True)
+    st.html("<div class='panel-label'>FEATURE IMPORTANCE</div>")
     top_features = metrics["feature_importances"][:7]
     max_imp = top_features[0][1]
     bars = ""
@@ -228,10 +229,10 @@ with col_imp:
             <div class='ledger-track'><div class='ledger-fill' style='width:{pct:.0f}%;'></div></div>
             <div class='ledger-val'>{imp:.3f}</div>
         </div>"""
-    st.markdown(bars, unsafe_allow_html=True)
+    st.html(bars)
 
 with col_notes:
-    st.markdown("<div class='panel-label'>READING THESE NUMBERS</div>", unsafe_allow_html=True)
+    st.html("<div class='panel-label'>READING THESE NUMBERS</div>")
     html_md(f"""
     <div style='font-size:0.87rem; line-height:1.7; color:var(--blue-soft);'>
     <strong>R\u00b2</strong> — the fraction of price variation the model explains. {metrics['r2']:.3f} means it accounts for about {metrics['r2']*100:.0f}% of what drives price differences between properties.<br>
@@ -241,5 +242,5 @@ with col_notes:
     </div>
     """)
 
-st.markdown("<div style='height:2rem;'></div>", unsafe_allow_html=True)
-st.markdown("<div style='text-align:center; font-family:Space Mono, monospace; font-size:0.7rem; letter-spacing:0.1em; color:var(--blue-soft); opacity:0.75;'>THE APPRAISAL OFFICE — BUILT FOR ARCH TECHNOLOGIES ML INTERNSHIP, MONTH 2</div>", unsafe_allow_html=True)
+st.html("<div style='height:2rem;'></div>")
+st.html("<div style='text-align:center; font-family:Space Mono, monospace; font-size:0.7rem; letter-spacing:0.1em; color:var(--blue-soft); opacity:0.75;'>THE APPRAISAL OFFICE — BUILT FOR ARCH TECHNOLOGIES ML INTERNSHIP, MONTH 2</div>")
